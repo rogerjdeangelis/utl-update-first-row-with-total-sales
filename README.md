@@ -1,9 +1,7 @@
 # utl-update-first-row-with-total-sales
-Update first row with total sales
-
-    Simply stated problems tend to illicit learning.
-
      Update first row with total sales
+
+     Simply stated problems tend to illicit learning.
 
       Five Solutions
 
@@ -20,6 +18,10 @@ Update first row with total sales
 
        5. HASH by Novinosrin
           https://communities.sas.com/t5/user/viewprofilepage/user-id/138205
+
+       6. SQL Update
+
+       7. R (want$SALES[1]<-sum(want$SALES)
 
     github
     https://tinyurl.com/yah7q5dd
@@ -121,7 +123,49 @@ Update first row with total sales
         stop;
         run;
 
-     *                _              _       _
+     6. SQL Update
+
+        proc sql undo_policy=none;
+          update have as u
+          set  sales=(select sum(sales) from have)
+          where u.country='World'
+        ;quit;
+
+
+     7. R
+
+        options validvarname=upcase;
+        libname sd1 "d:/sd1";
+        data sd1.have;
+        input country $ sales;
+        cards4;
+        World 25
+        India 30
+        USA 40
+        Pak 70
+        ;;;;
+        run;quit;
+
+        %utlfkil(d:/xpt/want.xpt);
+        %utl_submit_r64('
+        library(haven);
+        library(SASxport);
+        want<-read_sas("d:/sd1/have.sas7bdat");
+        want$SALES[1]<-sum(want$SALES);
+        want<-as.data.frame(want);
+        str(want);
+        want;
+        write.xport(want,file="d:/xpt/want.xpt");
+        ');
+
+        write.xport(want,file="d:/xpt/want.xpt");
+
+        libname xpt xport "d:/xpt/want.xpt";
+        data want;
+             set xpt.want;
+        run;quit;
+
+     *               _              _       _
      _ __ ___   __ _| | _____    __| | __ _| |_ __ _
     | '_ ` _ \ / _` | |/ / _ \  / _` |/ _` | __/ _` |
     | | | | | | (_| |   <  __/ | (_| | (_| | || (_| |
@@ -138,6 +182,7 @@ Update first row with total sales
     Pak 70
     ;;;;
     run;quit;
+
 
 
 
